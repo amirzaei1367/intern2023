@@ -1,0 +1,11 @@
+Python==3.11.4
+rest_framework==3.14.0
+torch==2.0.1+cu117
+numpy==1.25.1
+docx2txt==0.8
+fpdf==1.7.2
+fitz==0.0.1.dev2
+requests==2.29.0
+django==3.2.5
+json==2.0.9
+re==2.2.1
