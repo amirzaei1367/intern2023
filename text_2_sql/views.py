@@ -11,6 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from transformers.trainer_utils import set_seed
 from .apps import TextToSqlModel
 from .utils.chat_utils import format_tokens
+from .utils.sql_utils import evaluate_sql
 from .text_generation import TextGenerator
 from .configs import text_generation_config
 
