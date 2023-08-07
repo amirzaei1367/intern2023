@@ -9,7 +9,7 @@ import random
 
 from sqlalchemy.exc import SQLAlchemyError
 from transformers.trainer_utils import set_seed
-from .apps import TextToSqlModel
+from .apps import TextToSqlModel, TopicModel
 from .utils.chat_utils import format_tokens
 from .utils.sql_utils import evaluate_sql
 from .text_generation import TextGenerator
@@ -20,10 +20,24 @@ SCHEMA = """Table resume_data = [*, id, first_name, last_name, work_history, ski
 dialog = [
     [
         {'role': 'system',
-         'content': ('Convert the given question into a sql query using the schema given. Do not provide an explanation.')
+         'content': ('Convert the given question into a sql query using the schema given. Do not provide an explanation.' Use the following instructions.'
+                     '1. Begin every query with select *'
+                     '2. Do not use any join by clauses as there are no foreign keys in the database.')
         }
     ]
 ]
+
+class TopicExtractionService(APIView):
+    def get(self, request):
+        resumeText = request.GET.get('resume_test', '')
+        model = TopicModel.model
+        output = model.transform(resumeText)
+        topic = output[0][0]
+        topics = model.get_topic(topic)
+        topics = {
+            'topics': topics
+        }
+        return Response(topics)
 
 class TextToSqlService(APIView):
     def get(self, request):
