@@ -5,3 +5,5 @@ language questions into appropriate sql queries using large language models, whi
 provide the means of quering a given database without the need to learn the SQL expression language. The model that was used in this project was Llama 2. In particular
 the 7B-chat variant was used. For more information about these models go here:
 [https://about.fb.com/news/2023/07/llama-2/](url)
+
+views.py contains the the endpoints for both the TopicExtractionService as well as the TextToSqlService. 
