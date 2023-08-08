@@ -6,6 +6,8 @@ provide the means of quering a given database without the need to learn the SQL 
 the 7B-chat variant was used. For more information about these models go here:
 [https://about.fb.com/news/2023/07/llama-2/](url)
 
+The folder resumedb is the django project folder that contains all of the files needed to run the the text to sql and topic modeling service. The weights and the data used for training and evaluation are not included. To download the weights of the model go here [https://huggingface.co/meta-llama/Llama-2-7b-hf](url)
+
 views.py contains the the endpoints for both the TopicExtractionService as well as the TextToSqlService. 
 
 Visit the official Llama2 repository for more information and examples on how to finetune Llama2.
@@ -14,8 +16,6 @@ Visit the official Llama2 repository for more information and examples on how to
 
 
 [https://github.com/facebookresearch/llama-recipes/](url)
-
-The folder resumedb is the django project folder that contains all of the files needed to run the the text to sql and topic modeling service. The weights and the data used for training and evaluation are not included. To download the weights of the model go here [https://huggingface.co/meta-llama/Llama-2-7b-hf](url)
 
 To download the spider dataset used for evaluation go here [https://yale-lily.github.io/spider](url)
 
