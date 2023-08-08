@@ -12,11 +12,7 @@ class TextToSqlModel(AppConfig):
     name = 'database_app'
     model = load_model(model_id, quantization=True)
     tokenizer = load_tokenizer(model_id)
-
-    #MODEL_FILE = '/home/ubuntu/projects/resumedb/database_app/models/text2sql-t5-3b/checkpoint-103292/'
-    #model = T5ForConditionalGeneration.from_pretrained(MODEL_FILE)
-    #tokenizer = T5TokenizerFast.from_pretrained(MODEL_FILE)
-
+    
 class TopicModel(AppConfig):
     model_id: str = '/home/ubuntu/projects/resumedb/database_app/models/topic_model'
     embed_id: str = 'distilbert-base-cased'
