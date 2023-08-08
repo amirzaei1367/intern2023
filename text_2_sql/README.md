@@ -7,3 +7,8 @@ the 7B-chat variant was used. For more information about these models go here:
 [https://about.fb.com/news/2023/07/llama-2/](url)
 
 views.py contains the the endpoints for both the TopicExtractionService as well as the TextToSqlService. 
+
+Visit the official Llama2 repository for more information and examples on how to finetune Llama2.
+
+(https://github.com/facebookresearch/llama/tree/main)
+(https://github.com/facebookresearch/llama-recipes/)
