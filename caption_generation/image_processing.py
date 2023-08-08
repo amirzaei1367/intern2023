@@ -84,17 +84,7 @@ for index, row in df.iterrows():
 #     print("-" * 50)
 
 
-
 #TOP 5
-
-import nltk
-from sklearn.metrics.pairwise import cosine_similarity
-import gensim.downloader as api
-
-nltk.download('punkt')  # Download tokenizer data for NLTK
-
-# Load pre-trained GloVe word embeddings
-glove_model = api.load("glove-wiki-gigaword-100")  # You can choose different dimensions (e.g., glove-wiki-gigaword-50)
 
 def calculate_cosine_similarity(target_generated_caption, ground_truth_captions_dict):
     # Calculate the vector representation of the target generated caption
@@ -129,8 +119,6 @@ def calculate_cosine_similarity(target_generated_caption, ground_truth_captions_
     top_20_similarities = all_set_cos_similarity_list[:20]
 
     return top_5_similarities
-
-    
 
 def evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict):
     # Dictionary to store the results (hit or miss) for each generated caption
@@ -183,7 +171,6 @@ def evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict):
 evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict)
 
 
-
 #####################
 # OUTPUT: 
 # Accuracy: 6.00% 
@@ -219,14 +206,7 @@ evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict)
 
 #-----------------------------------------------
 # TOP 10 
-import nltk
-from sklearn.metrics.pairwise import cosine_similarity
-import gensim.downloader as api
-
-#nltk.download('punkt')  # Download tokenizer data for NLTK
-
-# Load pre-trained GloVe word embeddings
-glove_model = api.load("glove-wiki-gigaword-100")  # You can choose different dimensions (e.g., glove-wiki-gigaword-50)
+#-----------------------------------------------
 
 def calculate_cosine_similarity(target_generated_caption, ground_truth_captions_dict):
     # ... (previous code)
@@ -328,8 +308,6 @@ evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict)
 #TOP 20
 #----------------------------------------------
 
-# Load pre-trained GloVe word embeddings
-glove_model = api.load("glove-wiki-gigaword-100")  # You can choose different dimensions (e.g., glove-wiki-gigaword-50)
 
 def calculate_cosine_similarity(target_generated_caption, ground_truth_captions_dict):
     # ... (previous code)
