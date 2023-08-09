@@ -80,8 +80,14 @@ for index, row in df.iterrows():
     # print("Ground Truth Caption:", ground_truth_caption)
     # print("Generated Caption:", generated_caption)
 
+# Sort the list of cosine similarities in descending order
 
-#     print("-" * 50)
+cos_similarity_list.sort(reverse=True, key=lambda x: x[0])
+
+# # Calculate the average cosine similarity score
+average_cos_similarity = total_cos_similarity / num_pairs
+print("Average Cosine Similarity:", average_cos_similarity)
+
 
 
 #TOP 5
