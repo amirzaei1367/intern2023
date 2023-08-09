@@ -3,7 +3,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 from string import punctuation
 from heapq import nlargest
 
-text = """..."""
+text = """ """ # The text you want to summarize should go here
 nlp = spacy.load('en_core_web_sm')
 doc = nlp(text)
 
