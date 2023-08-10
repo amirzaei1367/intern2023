@@ -15,11 +15,55 @@ nltk.download('punkt')  # Download tokenizer data for NLTK
 # Load pre-trained GloVe word embeddings
 glove_model = api.load("glove-wiki-gigaword-100")  # You can choose different dimensions (e.g., glove-wiki-gigaword-50)
 
+
+
+import os
+import requests
+import pandas as pd
+
+# Function to download the image for a given serial number
+def download_image(serial_no, base_dir):
+    try:
+        url = f"https://tsdr.uspto.gov/img/{serial_no}/large"
+        response = requests.get(url)
+        img_name = f"{serial_no}.jpg"
+        image_path = os.path.join(base_dir, img_name)
+        with open(image_path, 'wb') as f:
+            f.write(response.content)
+    except:
+        print(f"Error downloading image for serial number: {serial_no}")
+
+def main():
+    # Replace 'your_csv_file.csv' with the path to your specific CSV file
+    csv_file_path = 'your_csv_file.csv'
+
+    # Replace 'column_name' with the name of the column containing the serial numbers
+    column_name = 'serial_no'
+
+    # Replace 'your_base_directory' with the directory where you want to save the images
+    base_dir = 'your_base_directory'
+
+    # Read the CSV file and extract the specific column containing serial numbers
+    df = pd.read_csv(csv_file_path)
+    serial_numbers = df[column_name].tolist()
+
+    # Take only the first 1000 serial numbers (or less if there are fewer than 1000)
+    num_serial_numbers_to_download = 1000
+    selected_serial_numbers = serial_numbers[:num_serial_numbers_to_download]
+
+    # Download the images for the selected serial numbers
+    for serial_no in selected_serial_numbers:
+        download_image(serial_no, base_dir)
+
+if __name__ == "__main__":
+    main()
+
+
 # Folder path where the PNG images are stored
-image_folder_path = "/Users/montrellnelson/Downloads/REI_IMAGES/"
+image_folder_path = "/Users/montrellnelson/Downloads/REI_IMAGES/" #REPLACE with your images file path
 
 # CSV file path containing serial numbers and corresponding ground truth captions
-csv_file_path = "/Users/montrellnelson/Downloads/df_design_search_1000.csv"
+csv_file_path = "/Users/montrellnelson/Downloads/df_design_search_1000.csv" #REPLACE with your CSV file path
 
 processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
 model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large")
@@ -31,8 +75,8 @@ total_cos_similarity = 0
 cos_similarity_list = []
 num_pairs = len(df)
 
+# Dictionary to store ground truths for each image
 ground_truth_captions_dict = {}
-
 
 # Dictionary to store generated captions for each image
 generated_captions_dict = {}
@@ -53,7 +97,6 @@ for index, row in df.iterrows():
 
     out = model.generate(**inputs)  # Generate a new caption for each image
     generated_caption = processor.decode(out[0], skip_special_tokens=True)
-
 
 
     # Tokenize the generated and ground truth captions
@@ -91,7 +134,6 @@ cos_similarity_list.sort(reverse=True, key=lambda x: x[0])
 # # Calculate the average cosine similarity score
 average_cos_similarity = total_cos_similarity / num_pairs
 print("Average Cosine Similarity:", average_cos_similarity)
-
 
 
 #TOP 5
@@ -219,7 +261,6 @@ evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict)
 #-----------------------------------------------
 
 def calculate_cosine_similarity(target_generated_caption, ground_truth_captions_dict):
-    # ... (previous code)
     # Calculate the vector representation of the target generated caption
     target_generated_caption_tokens = nltk.word_tokenize(target_generated_caption)
     target_generated_caption_vectors = [glove_model[word] for word in target_generated_caption_tokens if word in glove_model]
@@ -249,7 +290,6 @@ def calculate_cosine_similarity(target_generated_caption, ground_truth_captions_
 
 
 def evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict):
-    # ... (previous code)
     # Dictionary to store the results (hit or miss) for each generated caption
     results_dict = {}
 
@@ -283,8 +323,6 @@ def evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict):
     print(total_hits)
     print(total_generated_captions)
 
-# Example usage:
-# Assuming you have dictionaries `generated_captions_dict` and `ground_truth_captions_dict` containing generated captions and ground truth captions, respectively.
 evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict)
 
 #OUTPUT
