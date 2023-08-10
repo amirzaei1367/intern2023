@@ -419,3 +419,23 @@ evaluate_hits_misses(generated_captions_dict, ground_truth_captions_dict)
 #Accuracy: 11.30%
 #113
 #1000
+
+#Image, Ground Truth and Caption Verification
+# Specify the serial number of the image you want to test
+test_serial_number = 87643300
+
+# Find the corresponding row in the DataFrame
+test_row = df[df['serial_no'] == test_serial_number]
+
+if not test_row.empty:
+    image_file_name = f"{test_serial_number}.jpg"
+    image_path = os.path.join(image_folder_path, image_file_name)
+
+    try:
+        raw_image = Image.open(image_path).convert('RGB')
+        print("Image opened successfully")
+        raw_image.show()  # Display the image using the default image viewer
+    except Exception as e:
+        print(f"Error opening image: {e}")
+else:
+    print(f"Serial number {test_serial_number} not found in the DataFrame.")
