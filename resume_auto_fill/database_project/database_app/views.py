@@ -1,34 +1,43 @@
+#Django Imports
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from django.views import View
-import torch
-import numpy as np
-import docx2txt
-from fpdf import FPDF
-import fitz
-import requests
 import json
-import re
-import glob
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-import csv
-from io import BytesIO
+import requests
+
+import torch #GPU ACCESS
+import numpy as np #Numerical Computations
+
+import docx2txt #DOC Etraction
+import fitz #PDF Extraction aka PyMuPDF
+from io import BytesIO #Document Opener
+
+import re #Regex
+
 import random
 import time
 import os
-import boto3
-import spacy
-import textwrap
-from textwrap import fill
 
-s3 = boto3.client('s3', aws_access_key_id='AKIAZ257POCST3TRJZSS', aws_secret_access_key='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', region_name='us-east-2')
-nlp = spacy.load("en_core_web_sm")
+import csv
+import boto3 #AWS
+import spacy #NER
+import glob #Batching
+
+#PDF Generation Imports
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import textwrap
 
 #Reference apps.py
 from .apps import FileExtraction
+
+#AWS Bucket Setup
+s3 = boto3.client('s3', aws_access_key_id='AKIAZ257POCST3TRJZSS', aws_secret_access_key='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', region_name='us-east-2')
+
+#NER Library import
+nlp = spacy.load("en_core_web_sm")
 
 # Seed initialization to ensure reproducibility
 seed = 1989
@@ -38,16 +47,23 @@ torch.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)
 torch.backends.cudnn.deterministic = True
 
+
 def append_to_csv(filename, data):
+    # Open the CSV file in append mode ('a') to add data without overwriting existing content.
+    # The 'newline=""' argument ensures that newlines are handled correctly across different OS.
     with open(filename, 'a', newline='') as csvfile:
+        
+        # Define the column names for our CSV. These are the fields that our data should contain.
         field_names = ['first_name', 'last_name', 'phone_number', 'email_address', 'physical_address', 'security_clearance', 'certifications', 'skills', 'education', 'work_history']
+        
+        # Create a DictWriter object. This allows us to write dictionaries to a CSV file.
+        # The 'fieldnames' parameter tells the writer which order to write data in.
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
 
-        # Check if the file is empty and write header if needed
+        # Check if the CSV file is empty (i.e., if its cursor is at position 0)
+        # If it is empty, we'll write the headers/column names to the file first.
         if csvfile.tell() == 0:
             writer.writeheader()
-
-        writer.writerow(data)
 
 def upload_to_s3(file_path):
         # Define the S3 bucket and object name
@@ -79,94 +95,123 @@ def BatchFieldsExtractionService():
     return Response(extracted_data)
 
 class TextExtractionService(APIView):
+    
     def post(self, request):
+        # Retrieve the uploaded file from the request
         uploaded_file = request.FILES.get('file')
-        # Extract text from the uploaded file
+        
+        # If the uploaded file is a .txt file, directly assign it as the extracted_text.
+        # Otherwise, use the convert_file_to_text function to extract text.
         if uploaded_file.name.endswith('.txt'):
             extracted_text = uploaded_file
         else:
             extracted_text = self.convert_file_to_text(uploaded_file)
+        
+        # Return the extracted text as a response
         return Response(extracted_text)
 
-    # Function to convert a file to text
+    # Function to handle the extraction of text based on file type
     def convert_file_to_text(self, uploaded_file):
         file_path = uploaded_file.name
         file = uploaded_file.read()
-        # Check file type and extract text accordingly
+        
+        # Determine the file type and extract text accordingly
         if file_path.endswith('.pdf'):
             text = self.extract_text_from_pdf(file)
         elif file_path.endswith('.docx') or file_path.endswith('.doc'):
             text = self.extract_text_from_docx(file)
         else:
+            # Raise an error if the file format is unsupported
             raise ValueError("Unsupported file format")
+        
         return text
 
-    # Extract text from DOCX
+    # Function to extract text from DOCX files
     def extract_text_from_docx(self, docx_file):
+        # Convert the docx file into a BytesIO stream
         text = BytesIO(docx_file)
+        
+        # Use docx2txt to process the BytesIO stream and extract the text
         text = docx2txt.process(text)
+        
+        # Replace newline characters with spaces
         text = text.replace('\n', ' ')
+        
         return text
 
-    # Extract text from PDF
+    # Function to extract text from PDF files
     def extract_text_from_pdf(self, pdf_content):
         text = ""
+        
+        # Convert the PDF content into a BytesIO stream
         pdf_file = BytesIO(pdf_content)
+        
+        # Open the PDF using the PyMuPDF library (fitz)
         pdf_document = fitz.open(stream=pdf_file, filetype="pdf")
+        
+        # Loop through each page in the PDF and extract its text
         for page_num in range(pdf_document.page_count):
             page = pdf_document.load_page(page_num)
             text += page.get_text().replace('\n', ' ')
+        
+        # Close the PDF file after extracting the text
         pdf_document.close()
+        
         return text
-495%494
+    
 class FieldsExtractionService(APIView):
-    # Create your views here.
+    
     def post(self, request):
-        start_time = time.time()  # Start the timer
+        # Start tracking the time
+        start_time = time.time()
+        
+        # Retrieve the uploaded file from the request
         uploaded_file = request.FILES.get('file')
 
-        # Create a new request object with the file parameter
+        # Prepare the file data for the POST request
         data = {'file': uploaded_file}
 
-        # Make a POST request to the TextExtractionService view
+        # Make a POST request to the TextExtractionService view to get text from the uploaded file
         response = requests.post("http://192.9.135.43:8000/TextExtractionService", files=data)
 
-        # Extract the text from the response
+        # Retrieve the extracted text from the response
         extracted_text = response.text
 
-        # do something with query here
+        # Parse the resume to extract specific fields
         parsed_resume = self.extract_fields_from_resume(extracted_text)
         print(parsed_resume)
 
-        end_time = time.time()  # Stop the timer
-        elapsed_time = end_time - start_time  # Calculate elapsed time
-        print("Elapsed Time:", elapsed_time, "seconds")  # Print the elapsed time
+        # Calculate the time taken for the entire process
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print("Elapsed Time:", elapsed_time, "seconds")
 
-        #Append output to csv file
+        # Store the parsed results to a CSV file
         append_to_csv('resume_fields.csv', parsed_resume)
 
-        # Upload CSV to S3
+        # Upload the CSV file to S3
         upload_to_s3('resume_fields.csv')
 
+        # Return the parsed results
         return Response(parsed_resume)
 
     def clean_text(self, text):
-        # Filter out special characters that are not alphanumeric, punctuation, '+' or '#'
+        # Remove unwanted characters from the text
         filtered_text = re.sub(r"[^a-zA-Z0-9 \t\n\.\+#\/\\\-:\)\(@]", "", text)
-        # Replace multiple spaces with single space
+        # Replace multiple spaces with a single space
         filtered_text = re.sub(r'\s{2,}', ' ', filtered_text)
         return filtered_text
 
     def get_name_with_ner(self, text):
+        # Use spaCy's NER to extract the person's name
         doc = nlp(text)
         for ent in doc.ents:
             if ent.label_ == "PERSON":
-                # Take the first name of the recognized person's name
-                return [ent.text.split()[0],ent.text.split()[-1]]
+                return [ent.text.split()[0], ent.text.split()[-1]]
         return None
     
     def extract_fields_from_resume(self, resume_text):
-        # Prepare the resume text for the model input
+        # Clean the provided resume text
         resume_text = self.clean_text(resume_text)
 
         prompts = [
@@ -185,72 +230,49 @@ class FieldsExtractionService(APIView):
         max_new_tokens_values = [20, 20, 20, 20, 20, 20, 50, 150, 200, 150]
         responses = []
 
-        x = 1
+        x=1
+        # Loop over prompts and token limits
         for prompt, tokens in zip(prompts, max_new_tokens_values):
-            # Tokenize the prompt
+            # Tokenize the prompt (assuming a separate tokenizer is set up)
             input_ids = FileExtraction.tokenizer.encode(prompt, return_tensors="pt")
             input_ids = input_ids.to('cuda')
-            # Generate the response
+            
+            # Generate a response using the model
             output_ids = FileExtraction.model_8bit.generate(input_ids, max_length=len(input_ids[0]) + tokens)
-            # Decode the generated response
+            
+            # Convert the generated response to text
             generated_text = FileExtraction.tokenizer.decode(output_ids[0])
-            # Append the response to the list, wrapping it inside a list
+            
+            # Store the generated response after cleaning up
             responses.append(generated_text.replace(prompt, '').replace('\n', '  ').strip())
 
             print("Completed response:", x, "/ 10")
             x += 1
 
-        # Extract fields from the generated response
+        # Dictionary to store the extracted fields
         extracted_fields = {}
-        
         field_names = ['first_name', 'last_name', 'phone_number', 'email_address', 'physical_address', 'security_clearance', 'certifications', 'skills', 'education', 'work_history']
-        x = 1
-        
-        #Alternative approach using a basic SpaCy NER implementation to pull first and last names
-        '''for generated_response, field_name, prompt in zip(responses, field_names, prompts):
-            if field_name == "first_name" or field_name == "last_name":
-                first = self.get_name_with_ner(resume_text)[0]
-                last = self.get_name_with_ner(resume_text)[-1]
-                if field_name == "first_name":
-                    extracted_fields[field_name] = first
-                else:
-                    extracted_fields[field_name] = last
-            else:
-                answer_start_index = generated_response.rfind('Answer: ') + len('Answer: ')
-                answer_end_index = generated_response.find('</s>') if generated_response.find('</s>') != -1 else None
-                extracted_text = generated_response[answer_start_index:answer_end_index]
-                extracted_fields[field_name] = extracted_text.strip()
-                print("Completed extraction:", x, "/ 10")'''
 
-        # Iterate over responses, field names, and prompts simultaneously
+        x=1
+        # Extract the relevant information from the generated responses
         for generated_response, field_name, prompt in zip(responses, field_names, prompts):
-            
-            # Find the starting index of the answer
             answer_start_index = generated_response.rfind('Answer:') + len('Answer:')
-            
-            # Determine the ending index of the answer
             answer_end_index = generated_response.find('</s>') if generated_response.find('</s>') != -1 else None
-            
-            # Extract the answer using the found indices
             extracted_text = generated_response[answer_start_index:answer_end_index]
-            
-            # Store the extracted answer in the dictionary
             extracted_fields[field_name] = extracted_text.strip()
-            
-            # Print a status update for the extraction progress
+
             print("Completed extraction:", x, "/ 10")
-            
             x += 1
-
-
 
         return extracted_fields
 
 class PDFGenerationService(View):
     def get(self, request):
+        # Extract the first key from the GET request which is assumed to be a JSON string
         json_str = list(request.GET.keys())[0]
+        # Convert the JSON string to a dictionary
         params_dict = json.loads(json_str)
-        print(params_dict)
+        # Extract necessary fields from the dictionary, using default values if not found
         fields = {
             "first_name": params_dict.get("first_name", ""),
             "last_name": params_dict.get("last_name", ""),
@@ -264,27 +286,35 @@ class PDFGenerationService(View):
             "Skills": params_dict.get("skills", "")
         }
 
+        # Generate a PDF with the extracted fields and get the output path
         output_path = self.create_pdf_from_output(fields)
         data = {'path': output_path}
         return JsonResponse(data)
 
     def create_pdf_from_output(self, output):
+        
+        # Set font configuration for the plot
         plt.rcParams['font.family'] = 'sans-serif'
         plt.rcParams['font.sans-serif'] = 'STIXGeneral'
 
+        # Create a new figure for the PDF with specified dimensions
         fig, ax = plt.subplots(figsize=(8.5, 11))
 
+        # Load the logo and place it in the figure
         logo_path = "3747.png"
         logo = mpimg.imread(logo_path)
         logobox = OffsetImage(logo, zoom=0.2)
         logo_ab = AnnotationBbox(logobox, (0.08, 0.96), frameon=False)
         ax.add_artist(logo_ab)
+        
+        # Draw static lines and set the background for the plot
         ax.axvline(x=.5, ymin=0, ymax=1, color='#007ACC', alpha=0.0, linewidth=50)
         plt.axvline(x=.99, color='#000000', alpha=0.5, linewidth=300)
         plt.axhline(y=.88, xmin=0, xmax=1, color='#ffffff', linewidth=3)
         ax.set_facecolor('white')
         plt.axis('off')
 
+        # Define max character widths for text wrapping
         max_width_left = 55   # Char width for the left side text
         max_width_right = 30  # Char width for the skills section on the right side
 
@@ -358,8 +388,9 @@ class PDFGenerationService(View):
             plt.annotate(skill, (.7, skills_y_start), weight='regular', fontsize=10, color='#000000')
             skills_y_start -= 0.02  # Move further down for the next skill
 
-
+        # Save the annotated figure as a PDF with the name of the person
         plt.savefig(output["first_name"]+output["last_name"]+'.pdf', format="pdf", dpi=300)
+        # Define the path where the PDF is saved
         output_path = os.path.join(os.getcwd(), "output.pdf")
 
         # Upload to S3
