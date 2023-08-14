@@ -1,0 +1,95 @@
+Hardcoded AWS Access Credentials:
+
+    Issue: The AWS credentials are hardcoded.
+    Potential Attack: Unauthorized AWS access.
+    Recommendation: Use IAM roles or store credentials in environment variables.
+
+Unrestricted File Types & Data Input and Validation:
+
+    Issue: Unchecked file uploads of various types.
+    Potential Attack: Malicious file uploads and file-based attacks.
+    Recommendation: Validate file contents, integrate malware scanning, and sanitize content.
+
+Static Seed Initialization:
+
+    Issue: Predictable seed for randomization.
+    Recommendation: Use dynamic seeding.
+
+Unsecured External Service Call & External Service Calls:
+
+    Issue: Unencrypted and unauthenticated external POST request.
+    Potential Attack: Data interception, service failures, and DNS rebinding.
+    Recommendation: Use HTTPS, validate certificates, and avoid hardcoding IPs.
+
+Potential Path Traversal Vulnerability:
+
+    Issue: Unvalidated user input for file paths.
+    Potential Attack: Directory traversal.
+    Recommendation: Validate and sanitize user inputs.
+
+Error Handling & Error Handling:
+
+    Issue: Insufficient error handling.
+    Potential Attack: Information disclosure.
+    Recommendation: Implement robust error handling without exposing details.
+
+Static S3 Bucket Name:
+
+    Issue: Hardcoded S3 bucket name.
+    Recommendation: Use secure configuration management.
+
+Appending to CSV without Verification:
+
+    Issue: Unverified data appended to CSV.
+    Potential Attack: Data corruption/injection.
+    Recommendation: Validate and sanitize data before appending.
+
+Inefficient S3 Uploads:
+
+    Issue: Repeated S3 uploads.
+    Recommendation: Opt for batch uploads or more efficient mechanisms.
+
+Potential Denial of Service (DoS) Attack Vector & Service Availability:
+
+    Issue: Potential for DoS attacks.
+    Recommendation: Implement rate-limiting and file size checks.
+
+Print Statements:
+
+    Issue: Data leakage via print statements.
+    Recommendation: Limit print statements in production and use secure logging.
+
+Data Storage and Handling:
+
+    Issue: Unencrypted data storage.
+    Recommendation: Encrypt data and avoid predictable filenames.
+
+Regular Expressions:
+
+    Issue: Potential ReDoS through regex.
+    Recommendation: Ensure safe regex patterns.
+
+Code Complexity and Maintainability:
+
+    Issue: Complex methods.
+    Recommendation: Refactor into smaller, focused functions.
+
+Static Files:
+
+    Issue: Unchecked reference to specific files.
+    Recommendation: Validate file presence and integrity.
+
+JSON Handling:
+
+    Issue: Unvalidated JSON input from query parameters.
+    Recommendation: Validate JSON and use POST over GET for large data.
+
+Dependencies:
+
+    Issue: Potential outdated/vulnerable libraries.
+    Recommendation: Regularly update and check for vulnerabilities.
+
+Authentication and Authorization:
+
+    Issue: Lack of authentication/authorization checks.
+    Recommendation: Implement standard authentication and authorization methods.
