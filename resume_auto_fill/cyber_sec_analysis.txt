@@ -93,3 +93,24 @@ Authentication and Authorization:
 
     Issue: Lack of authentication/authorization checks.
     Recommendation: Implement standard authentication and authorization methods.
+
+risks = {
+    "Hardcoded AWS Access": {"Likelihood": 9, "Severity": 9},
+    "Unchecked File Uploads": {"Likelihood": 8, "Severity": 9},
+    "Static Seed": {"Likelihood": 5, "Severity": 6},
+    "External POST Request": {"Likelihood": 8, "Severity": 8},
+    "Path Traversal": {"Likelihood": 7, "Severity": 8},
+    "Error Handling": {"Likelihood": 6, "Severity": 5},
+    "Static S3 Bucket": {"Likelihood": 6, "Severity": 7},
+    "CSV Appending": {"Likelihood": 5, "Severity": 5},
+    "Inefficient S3 Uploads": {"Likelihood": 4, "Severity": 4},
+    "DoS Attacks": {"Likelihood": 7, "Severity": 9},
+    "Print Statements": {"Likelihood": 4, "Severity": 6},
+    "Data Storage": {"Likelihood": 5, "Severity": 7},
+    "Regex": {"Likelihood": 4, "Severity": 7},
+    "Code Complexity": {"Likelihood": 4, "Severity": 5},
+    "Static Files": {"Likelihood": 4, "Severity": 5},
+    "JSON Handling": {"Likelihood": 6, "Severity": 6},
+    "Dependencies": {"Likelihood": 5, "Severity": 7},
+    "No Auth": {"Likelihood": 8, "Severity": 8}
+}
