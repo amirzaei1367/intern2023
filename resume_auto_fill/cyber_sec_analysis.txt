@@ -1,13 +1,11 @@
 Hardcoded AWS Access Credentials:
 
     Issue: The AWS credentials are hardcoded.
-    Potential Attack: Unauthorized AWS access.
     Recommendation: Use IAM roles or store credentials in environment variables.
 
 Unrestricted File Types & Data Input and Validation:
 
     Issue: Unchecked file uploads of various types.
-    Potential Attack: Malicious file uploads and file-based attacks.
     Recommendation: Validate file contents, integrate malware scanning, and sanitize content.
 
 Static Seed Initialization:
@@ -18,19 +16,16 @@ Static Seed Initialization:
 Unsecured External Service Call & External Service Calls:
 
     Issue: Unencrypted and unauthenticated external POST request.
-    Potential Attack: Data interception, service failures, and DNS rebinding.
     Recommendation: Use HTTPS, validate certificates, and avoid hardcoding IPs.
 
 Potential Path Traversal Vulnerability:
 
     Issue: Unvalidated user input for file paths.
-    Potential Attack: Directory traversal.
     Recommendation: Validate and sanitize user inputs.
 
 Error Handling & Error Handling:
 
     Issue: Insufficient error handling.
-    Potential Attack: Information disclosure.
     Recommendation: Implement robust error handling without exposing details.
 
 Static S3 Bucket Name:
@@ -41,7 +36,6 @@ Static S3 Bucket Name:
 Appending to CSV without Verification:
 
     Issue: Unverified data appended to CSV.
-    Potential Attack: Data corruption/injection.
     Recommendation: Validate and sanitize data before appending.
 
 Inefficient S3 Uploads:
@@ -95,22 +89,95 @@ Authentication and Authorization:
     Recommendation: Implement standard authentication and authorization methods.
 
 risks = {
-    "Hardcoded AWS Access": {"Likelihood": 9, "Severity": 9},
-    "Unchecked File Uploads": {"Likelihood": 8, "Severity": 9},
-    "Static Seed": {"Likelihood": 5, "Severity": 6},
-    "External POST Request": {"Likelihood": 8, "Severity": 8},
-    "Path Traversal": {"Likelihood": 7, "Severity": 8},
-    "Error Handling": {"Likelihood": 6, "Severity": 5},
-    "Static S3 Bucket": {"Likelihood": 6, "Severity": 7},
-    "CSV Appending": {"Likelihood": 5, "Severity": 5},
-    "Inefficient S3 Uploads": {"Likelihood": 4, "Severity": 4},
-    "DoS Attacks": {"Likelihood": 7, "Severity": 9},
-    "Print Statements": {"Likelihood": 4, "Severity": 6},
-    "Data Storage": {"Likelihood": 5, "Severity": 7},
-    "Regex": {"Likelihood": 4, "Severity": 7},
-    "Code Complexity": {"Likelihood": 4, "Severity": 5},
-    "Static Files": {"Likelihood": 4, "Severity": 5},
-    "JSON Handling": {"Likelihood": 6, "Severity": 6},
-    "Dependencies": {"Likelihood": 5, "Severity": 7},
-    "No Auth": {"Likelihood": 8, "Severity": 8}
+    "Hardcoded AWS Access": {
+        "Likelihood": 9, 
+        "Severity": 9,
+        "Potential Attack": "Unauthorized access to AWS resources. By having hardcoded AWS credentials in the codebase, an attacker who gains access to the source code or intercepts these credentials can exploit AWS services, potentially gaining access to data,             incurring high costs, or affecting service availability."
+    },
+    "Unchecked File Uploads": {
+        "Likelihood": 8, 
+        "Severity": 9,
+        "Potential Attack": "File-based attacks or malware upload. Without validating the contents or type of an uploaded file, malicious actors can upload executable code, scripts, or malware-infected files, which can be executed or spread within the                       infrastructure."
+    },
+    "Static Seed": {
+        "Likelihood": 5, 
+        "Severity": 6,
+        "Potential Attack": "Predictable random outputs. By having a statically set seed for randomization, the outputs become predictable. Attackers can exploit this predictability in various scenarios, including password reset tokens, session IDs, or any                  cryptographic operations reliant on randomness."
+    },
+    "External POST Request": {
+        "Likelihood": 8, 
+        "Severity": 8,
+        "Potential Attack": "Man-in-the-middle attack, data eavesdropping. Non-HTTPS requests are vulnerable to interception and modification by malicious actors, potentially leading to data leaks or the injection of malicious payloads."
+    },
+    "Path Traversal": {
+        "Likelihood": 7, 
+        "Severity": 8,
+        "Potential Attack": "Directory traversal attack. If file paths derived from user input aren't validated, attackers might access files outside the intended directory, leading to data disclosure or system compromise."
+    },
+    "Error Handling": {
+        "Likelihood": 6, 
+        "Severity": 5,
+        "Potential Attack": "Information disclosure. Improper error handling might expose detailed error messages to users, providing attackers insights into the system's inner workings or revealing other vulnerabilities."
+    },
+    "Static S3 Bucket": {
+        "Likelihood": 6, 
+        "Severity": 7,
+        "Potential Attack": "Targeted attacks on known resources. A hardcoded bucket name can be a direct target for attackers to try various attacks, such as bucket enumeration, unauthorized data access, or data tampering."
+    },
+    "CSV Appending": {
+        "Likelihood": 5, 
+        "Severity": 5,
+        "Potential Attack": "Data corruption, data injection. Appending data without verification can allow attackers to introduce malicious content or alter the data structure, possibly leading to data loss or further attacks when that data is processed."
+    },
+    "Inefficient S3 Uploads": {
+        "Likelihood": 4, 
+        "Severity": 4,
+        "Potential Attack": "Resource exhaustion and financial costs. Continuous, inefficient uploads to AWS S3 could increase costs and may throttle or limit resources for legitimate operations."
+    },
+    "DoS Attacks": {
+        "Likelihood": 7, 
+        "Severity": 9,
+        "Potential Attack": "Service disruption. Exploiting vulnerabilities to flood services with requests can make them unavailable to legitimate users."
+    },
+    "Print Statements": {
+        "Likelihood": 4, 
+        "Severity": 6,
+        "Potential Attack": "Information leakage. Malicious actors can gain insights into system operations, sensitive data, or other critical information which can be used for more targeted attacks."
+    },
+    "Data Storage": {
+        "Likelihood": 5, 
+        "Severity": 7,
+        "Potential Attack": "Data breaches. Storing data without proper security measures, such as encryption, exposes it to potential unauthorized access or leaks."
+    },
+    "Regex": {
+        "Likelihood": 4, 
+        "Severity": 7,
+        "Potential Attack": "ReDoS (Regular Expression Denial of Service) attack. Poorly crafted regular expressions can be exploited to cause extensive computation and service unavailability."
+    },
+    "Code Complexity": {
+        "Likelihood": 4, 
+        "Severity": 5,
+        "Potential Attack": "Undetected vulnerabilities. Highly complex code is harder to review and may hide vulnerabilities, providing opportunities for attackers."
+    },
+    "Static Files": {
+        "Likelihood": 4, 
+        "Severity": 5,
+        "Potential Attack": "Manipulation or corruption of static assets. References to static files without integrity checks can lead to unauthorized modifications which can be used for attacks, like defacement or malware distribution."
+    },
+    "JSON Handling": {
+        "Likelihood": 6, 
+        "Severity": 6,
+        "Potential Attack": "JSON Injection. Improper handling and validation of JSON data can allow attackers to inject malicious data, leading to data corruption or code execution in certain scenarios."
+    },
+    "Dependencies": {
+        "Likelihood": 5, 
+        "Severity": 7,
+        "Potential Attack": "Exploitation of known vulnerabilities. Outdated or vulnerable libraries can be targeted by attackers to exploit known security issues."
+    },
+    "No Auth": {
+        "Likelihood": 8, 
+        "Severity": 8,
+        "Potential Attack": "Unauthorized access. Lack of authentication and authorization controls exposes services to malicious or unauthorized activities, including data breaches or misuse of services."
+    }
 }
+
